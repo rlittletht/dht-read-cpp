@@ -28,7 +28,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "../bcm2708.h"
+#include "bcm2708.h"
 #include "../realtime.h"
 #include "pi_dht_read.h"
 

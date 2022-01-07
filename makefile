@@ -7,9 +7,9 @@ $(TARGETDIR):
 	-mkdir -p $@
 
 PIDIR = pi
-PIFILES = $(PIDIR)/pi_dht_read.c
+PIFILES = $(PIDIR)/pi_dht_read.c $(PIDIR)/bcm2708.c
 
-$(TARGETDIR)/test_dht_read: test_dht_read.c $(PIFILES) bcm2708.c realtime.c
+$(TARGETDIR)/test_dht_read: test_dht_read.c $(PIFILES) realtime.c
 	gcc -o $@ -W -Wall -lrt $^
 
 clean:
