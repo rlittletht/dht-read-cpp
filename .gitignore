@@ -4,8 +4,15 @@
 # ignore binary directory
 bin/
 
-
+# ignore emacs backups
 *~
+
+# ignore emacs autosave files
+\#*\#
+*.elc
+tramp
+.\#*
+
 
 # Compiled Object files
 *.slo
