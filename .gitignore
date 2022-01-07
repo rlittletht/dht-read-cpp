@@ -4,6 +4,9 @@
 # ignore binary directory
 bin/
 
+
+*~
+
 # Compiled Object files
 *.slo
 *.lo

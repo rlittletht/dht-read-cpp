@@ -28,8 +28,8 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "bcm2708.h"
-#include "realtime.h"
+#include "../bcm2708.h"
+#include "../realtime.h"
 #include "pi_dht_read.h"
 
 #define LOCKFILE "/run/lock/dht_read.lck"

@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "pi_dht_read.h"
+#include "pi/pi_dht_read.h"
 
 // GPIO pin number for DHT sensor
 #define DHTPIN 4

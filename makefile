@@ -6,7 +6,10 @@ $(TARGETDIR):
 	echo Making target directory $@
 	-mkdir -p $@
 
-$(TARGETDIR)/test_dht_read: test_dht_read.c pi_dht_read.c bcm2708.c realtime.c
+PIDIR = pi
+PIFILES = $(PIDIR)/pi_dht_read.c
+
+$(TARGETDIR)/test_dht_read: test_dht_read.c $(PIFILES) bcm2708.c realtime.c
 	gcc -o $@ -W -Wall -lrt $^
 
 clean:
