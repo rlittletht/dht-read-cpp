@@ -30,8 +30,8 @@
 #define MMIO_ERROR_DEVMEM -1
 #define MMIO_ERROR_MMAP -2
 
-volatile uint32_t* pi_mmio_gpio;
-volatile uint32_t *pi_mmio_timer;
+extern volatile uint32_t* pi_mmio_gpio;
+extern volatile uint32_t *pi_mmio_timer;
 
 int pi_mmio_init(void);
 
