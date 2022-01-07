@@ -1,0 +1,8 @@
+;; Object dht
+;; EDE Project Files are auto generated: Do Not Edit
+(ede-proj-project "dht"
+  :file "Project.ede"
+  :name "dht"
+  :targets nil
+  :object-name "dht"
+  :makefile-type Makefile\.am)
