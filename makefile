@@ -9,7 +9,7 @@ PI2DIR = pi2
 SRCDIR = .
 
 PIFILES = $(OBJDIR)/pi_dht_read.o $(OBJDIR)/bcm2708.o
-PI2FILES = $(OBJDIR)/pi_2_dht_read.c $(OBJDIR)/pi_2_mmio.c
+PI2FILES = $(OBJDIR)/pi_2_dht_read.o $(OBJDIR)/pi_2_mmio.o
 COREFILES = $(OBJDIR)/realtime.o
 
 VPATH=$(SRCDIR):$(PIDIR):$(PI2DIR):$(OBJDIR)
@@ -34,7 +34,7 @@ clean:
 	rm -f $(OBJDIR)/*
 
 
-OBJFILES = $(OBJDIR)/test_dht_read.o $(PIFILES) $(COREFILES) # $(PI2FILES)
+OBJFILES = $(OBJDIR)/test_dht_read.o $(PIFILES) $(COREFILES) $(PI2FILES)
 
 $(OBJDIR):
 	echo Making object directory $@
@@ -50,6 +50,6 @@ $(TARGETDIR)/test_dht_read: $(OBJFILES)
 #note the doubling of the $ in the sed expression -- they are expanded twice. once by make and once by sh
 .PHONY: compdb
 compdb: clean $(OBJFILES:.o=.o.json)
-	sed -e '1s/^/[\n/' -e '$$s/,$$/\n]/' $(OBJDIR)/compdb.int.json > $(TARGETDIR)/compile_commands.json
+	sed -e '1s/^/[\n/' -e '$$s/,$$/\n]/' $(OBJDIR)/compdb.int.json > compile_commands.json
 
 
