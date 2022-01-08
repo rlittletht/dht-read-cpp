@@ -1,6 +1,11 @@
 # Prerequisites
 *.d
 
+#ignore build database
+
+*.o.json
+compile_commands.json
+
 # ignore binary directory
 bin/
 
