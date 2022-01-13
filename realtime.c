@@ -25,6 +25,7 @@
 #include <time.h>
 
 #include "realtime.h"
+#include "stdio.h"
 
 void busy_wait_milliseconds(uint32_t millis) {
   // Set delay time period.
@@ -46,6 +47,15 @@ void sleep_milliseconds(uint32_t millis) {
   struct timespec sleep;
   sleep.tv_sec = millis / 1000;
   sleep.tv_nsec = (millis % 1000) * 1000000L;
+//  printf("sleeping for %ld:%ld\n", sleep.tv_sec, sleep.tv_nsec);
+  while (clock_nanosleep(CLOCK_MONOTONIC, 0, &sleep, &sleep) && errno == EINTR);
+}
+
+void sleep_nanoseconds(uint32_t ns) {
+  struct timespec sleep;
+  sleep.tv_sec = 0;
+  sleep.tv_nsec = ns;
+//  printf("sleeping for %ld:%ld\n", sleep.tv_sec, sleep.tv_nsec);
   while (clock_nanosleep(CLOCK_MONOTONIC, 0, &sleep, &sleep) && errno == EINTR);
 }
 

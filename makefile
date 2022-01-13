@@ -1,26 +1,35 @@
 TARGETDIR=bin
 OBJDIR=obj
-CC=gcc
-CXX=gcc
-CPPFLAGS=-W -Wall
+CC=g++
+CXX=g++
+CPPFLAGS=-W -Wall -std=c++14
 
 PIDIR = pi
 PI2DIR = pi2
 SRCDIR = .
+THREADDIR = thread
 
 PIFILES = $(OBJDIR)/pi_dht_read.o $(OBJDIR)/bcm2708.o
-PI2FILES = $(OBJDIR)/pi_2_dht_read.o $(OBJDIR)/pi_2_mmio.o
-COREFILES = $(OBJDIR)/realtime.o
+PI2FILES = $(OBJDIR)/pi_2_dht_read.o $(OBJDIR)/pi_2_mmio.o $(OBJDIR)/Pi2Dht.o
 
-VPATH=$(SRCDIR):$(PIDIR):$(PI2DIR):$(OBJDIR)
+COREFILES = $(OBJDIR)/realtime.o $(OBJDIR)/PiClock.o
+
+VPATH=$(SRCDIR):$(PIDIR):$(PI2DIR):$(OBJDIR):$(THREADDIR)
 
 %.o: %.c
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
+
+$(OBJDIR)/%.o: %.cc
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
 
 $(OBJDIR)/%.o: %.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
 
 $(OBJDIR)/%.o.json: %.c
+	clang++ -MJ $@ -Wall -std=c++11 -o $(@:.o.json=.o) -c $<
+	cat $@ >> $(OBJDIR)/compdb.int.json
+
+$(OBJDIR)/%.o.json: %.cc
 	clang++ -MJ $@ -Wall -std=c++11 -o $(@:.o.json=.o) -c $<
 	cat $@ >> $(OBJDIR)/compdb.int.json
 
@@ -45,7 +54,7 @@ $(TARGETDIR):
 	-mkdir -p $@
 
 $(TARGETDIR)/test_dht_read: $(OBJFILES)
-	gcc -o $@ -W -Wall -lrt $^
+	$(CC) -o $@ -W -Wall -lrt -lstdc++ $^
 
 #note the doubling of the $ in the sed expression -- they are expanded twice. once by make and once by sh
 .PHONY: compdb

@@ -1,23 +1,4 @@
-// Copyright (c) 2014 Adafruit Industries
-// Author: Tony DiCola
 
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
 #include <stdbool.h>
 #include <stdlib.h>
 #include "stdio.h"
@@ -25,6 +6,9 @@
 #include "pi_2_dht_read.h"
 #include "pi_2_mmio.h"
 #include "../realtime.h"
+
+#include "Pi2Dht.h"
+#include "../thread/PiClock.h"
 
 // This is the only processor specific magic value, the maximum amount of time to
 // spin in a loop before bailing out and considering the read a timeout.  This should
@@ -37,18 +21,15 @@
 // the data afterwards.
 #define DHT_PULSES 41
 
-int pi_2_dht_read(int type, int pin, float* humidity, float* temperature)
-{
-    // Validate humidity and temperature arguments and set them to zero.
-    if (humidity == NULL || temperature == NULL)
-	return DHT_ERROR_ARGUMENT;
 
-    *temperature = 0.0f;
-    *humidity = 0.0f;
+SensorResult Pi2Dht::ReadSensor(SensorType type, int pin, DhtReading &reading)
+{
+    reading.temperature = 0.0f;
+    reading.humidity = 0.0f;
     
     // Initialize GPIO library.
     if (pi_2_mmio_init() < 0)
-	return DHT_ERROR_GPIO;
+	return SensorResult::GpioError;
 
     // Store the count that each DHT bit pulse is low and high.
     // Make sure array is initialized to start at zero.
@@ -69,7 +50,9 @@ int pi_2_dht_read(int type, int pin, float* humidity, float* temperature)
 
     // Set pin low for ~20 milliseconds.
     pi_2_mmio_set_low(pin);
-    busy_wait_milliseconds(20);
+    
+    PiClock::BusyWait(std::chrono::steady_clock::duration(20ms));
+//    busy_wait_milliseconds(20);
 
     // Set pin at input.
     pi_2_mmio_set_input(pin);
@@ -86,7 +69,7 @@ int pi_2_dht_read(int type, int pin, float* humidity, float* temperature)
 	{
 	    // Timeout waiting for response.
 	    set_default_priority();
-	    return DHT_ERROR_TIMEOUT;
+	    return SensorResult::TimeoutError;
 	}
     }
 
@@ -100,7 +83,7 @@ int pi_2_dht_read(int type, int pin, float* humidity, float* temperature)
 	    {
 		// Timeout waiting for response.
 		set_default_priority();
-		return DHT_ERROR_TIMEOUT;
+		return SensorResult::TimeoutError;
 	    }
 	}
 	
@@ -112,7 +95,7 @@ int pi_2_dht_read(int type, int pin, float* humidity, float* temperature)
 	    {
 		// Timeout waiting for response.
 		set_default_priority();
-		return DHT_ERROR_TIMEOUT;
+		return SensorResult::TimeoutError;
 	    }
 	}
 //	printf("pulseCounts: %d\n", pulseCounts[i+1]);
@@ -153,24 +136,24 @@ int pi_2_dht_read(int type, int pin, float* humidity, float* temperature)
     // Verify checksum of received data.
     if (data[4] == ((data[0] + data[1] + data[2] + data[3]) & 0xFF))
     {
-	if (type == _DHT11)
+	if (type == SensorType::DHT11)
 	{
 	    // Get humidity and temp for DHT11 sensor.
-	    *humidity = (float)data[0];
-	    *temperature = (float)data[2];
+	    reading.humidity = (float)data[0];
+	    reading.temperature = (float)data[2];
 	}
-	else if (type == _DHT22)
+	else if (type == SensorType::DHT22 || type == SensorType::AM2302)
 	{
 	    // Calculate humidity and temp for DHT22 sensor.
-	    *humidity = (data[0] * 256 + data[1]) / 10.0f;
-	    *temperature = ((data[2] & 0x7F) * 256 + data[3]) / 10.0f;
+	    reading.humidity = (data[0] * 256 + data[1]) / 10.0f;
+	    reading.temperature = ((data[2] & 0x7F) * 256 + data[3]) / 10.0f;
 	    if (data[2] & 0x80)
-		*temperature *= -1.0f;
+		reading.temperature *= -1.0f;
 	}
-	return DHT_SUCCESS;
+	return SensorResult::Success;
     }
     else
     {
-	return DHT_ERROR_CHECKSUM;
+	return SensorResult::ChecksumError;
     }
 }

@@ -31,8 +31,8 @@
 #define DHT_SUCCESS 0
 
 // Define sensor types.
-#define DHT11 11
-#define DHT22 22
-#define AM2302 22
+#define _DHT11 11
+#define _DHT22 22
+#define _AM2302 22
 
 #endif

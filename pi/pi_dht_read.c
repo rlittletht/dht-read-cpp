@@ -223,11 +223,11 @@ static int pi_dht_read(int type, int pin, float* pHumidity, float* pTemperature)
 		DHT_READ_LOG("%2d,%4u\n", DHT_PULSES, lowMicros[DHT_PULSES]);
 		return 0;
 	}
-	if (type == DHT11) {
+	if (type == _DHT11) {
 		// Get humidity and temp for DHT11 sensor.
 		*pHumidity = (float)data[0];
 		*pTemperature = (float)data[2];
-	} else if (type == DHT22) {
+	} else if (type == _DHT22) {
 		// Calculate humidity and temp for DHT22 sensor.
 		*pHumidity = (data[0] * 256 + data[1]) / 10.0f;
 		*pTemperature = ((data[2] & 0x7F) * 256 + data[3]) / 10.0f;

@@ -22,9 +22,9 @@
 #define PI_DHT_READ_H
 
 // Define sensor types.
-#define DHT11 11
-#define DHT22 22
-#define AM2302 22
+#define _DHT11 11
+#define _DHT22 22
+#define _AM2302 22
 
 /**
  * Read humidity/temperature from Adafruit DHT sensor, with retries.
