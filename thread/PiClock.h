@@ -1,11 +1,14 @@
 
-#include <chrono>
-using namespace std::chrono_literals;
+#pragma once
+
+#include "PiThread.h"
 
 class PiClock
 {
 public:
-    static std::chrono::steady_clock::duration BusyWait(std::chrono::steady_clock::duration waitDuration);
+    static pi_clock::duration BusyWait(pi_clock::duration waitDuration);
 };
+
+
 
     

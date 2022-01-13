@@ -12,7 +12,8 @@ THREADDIR = thread
 PIFILES = $(OBJDIR)/pi_dht_read.o $(OBJDIR)/bcm2708.o
 PI2FILES = $(OBJDIR)/pi_2_dht_read.o $(OBJDIR)/pi_2_mmio.o $(OBJDIR)/Pi2Dht.o
 
-COREFILES = $(OBJDIR)/realtime.o $(OBJDIR)/PiClock.o
+COREFILES = $(OBJDIR)/realtime.o
+THREADFILES = $(OBJDIR)/PiClock.o $(OBJDIR)/PiTimer.o
 
 VPATH=$(SRCDIR):$(PIDIR):$(PI2DIR):$(OBJDIR):$(THREADDIR)
 
@@ -43,7 +44,7 @@ clean:
 	rm -f $(OBJDIR)/*
 
 
-OBJFILES = $(OBJDIR)/test_dht_read.o $(PIFILES) $(COREFILES) $(PI2FILES)
+OBJFILES = $(OBJDIR)/test_dht_read.o $(PIFILES) $(COREFILES) $(PI2FILES) $(THREADFILES)
 
 $(OBJDIR):
 	echo Making object directory $@
