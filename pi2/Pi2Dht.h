@@ -1,11 +1,11 @@
 
 enum class SensorResult: int
 {
-    Success,
-    TimeoutError,
-    ChecksumError,
-    ArgumentError,
-    GpioError
+    Success = 0,
+    TimeoutError = 1,
+    ChecksumError = 2,
+    ArgumentError = 3,
+    GpioError = 4
 };
 
 struct DhtReading

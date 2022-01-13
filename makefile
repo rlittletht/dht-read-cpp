@@ -2,7 +2,7 @@ TARGETDIR=bin
 OBJDIR=obj
 CC=g++
 CXX=g++
-CPPFLAGS=-W -Wall -std=c++14
+CPPFLAGS=-W -Wall -std=c++17
 
 PIDIR = pi
 PI2DIR = pi2
@@ -27,11 +27,11 @@ $(OBJDIR)/%.o: %.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
 
 $(OBJDIR)/%.o.json: %.c
-	clang++ -MJ $@ -Wall -std=c++11 -o $(@:.o.json=.o) -c $<
+	clang++ -MJ $@ -Wall -std=c++17 -o $(@:.o.json=.o) -c $<
 	cat $@ >> $(OBJDIR)/compdb.int.json
 
 $(OBJDIR)/%.o.json: %.cc
-	clang++ -MJ $@ -Wall -std=c++11 -o $(@:.o.json=.o) -c $<
+	clang++ -MJ $@ -Wall -std=c++17 -o $(@:.o.json=.o) -c $<
 	cat $@ >> $(OBJDIR)/compdb.int.json
 
 .PHONY: clean

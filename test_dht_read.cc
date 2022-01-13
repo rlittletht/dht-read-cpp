@@ -5,6 +5,10 @@
 
 #include "pi2/Pi2Dht.h"
 
+#include "thread/PiTimer.h"
+
+#include <iostream>
+
 // GPIO pin number for DHT sensor
 #define DHTPIN 4
 
@@ -18,6 +22,7 @@ int main(int argc, const char **argv)
     int iArg = 1;
     int readingsAttempted = 0;
     int successfulReadings = 0;
+    PiTimer timer;
     
     while (iArg < argc)
     {
@@ -44,7 +49,7 @@ int main(int argc, const char **argv)
 
     if (testMode)
     {
-        count = 1000;
+        count = 10;
         printf("testing");
     }
     
@@ -103,5 +108,10 @@ int main(int argc, const char **argv)
     {
         printf("\n\nRESULTS: %d/%d.  %f%%\n", successfulReadings, readingsAttempted, (float)(successfulReadings * 100.0) / (float)readingsAttempted);
     }
+
+//    auto a = timer.Elapsed();
+//    std::chrono::milliseconds msec(std::chrono::duration_cast<std::chrono::milliseconds>(a));
+    
+    std::cout << "Total elapsed time: " << std::chrono::duration_cast<std::chrono::milliseconds>(timer.Elapsed()).count() << " msec\n";
     return 0;
 }
