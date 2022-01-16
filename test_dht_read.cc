@@ -59,10 +59,10 @@ int main(int argc, const char **argv)
         
         if (useNewReader)
         {
-            DhtReading reading;
-            SensorResult result = Pi2Dht::ReadSensor(SensorType::AM2302, DHTPIN, reading);
+            Pi2Dht::Reading reading;
+            Pi2Dht::Result result = Pi2Dht::Sensor::GetReading(Pi2Dht::Model::AM2302, DHTPIN, reading);
 
-            if (result == SensorResult::Success)
+            if (result == Pi2Dht::Result::Success)
             {
                 if (!testMode)
                     printf("new: temperature:%.1f Humidity:%.1f\n", reading.temperature, reading.humidity);

@@ -1,5 +1,8 @@
 
-enum class SensorResult: int
+namespace Pi2Dht
+{
+
+enum class Result: int
 {
     Success = 0,
     TimeoutError = 1,
@@ -8,22 +11,23 @@ enum class SensorResult: int
     GpioError = 4
 };
 
-struct DhtReading
+struct Reading
 {
     float humidity;
     float temperature;
 };
 
-enum class SensorType: int
+enum class Model: int
 {
     AM2302,
     DHT22,
     DHT11
 };
 
-class Pi2Dht
+class Sensor
 {
 public:
-    static SensorResult ReadSensor(SensorType type, int pin, DhtReading &reading);
+    static Result GetReading(Model model, int pin, Reading &reading);
 };
 
+}

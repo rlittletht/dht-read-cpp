@@ -21,15 +21,16 @@
 // the data afterwards.
 #define DHT_PULSES 41
 
+using namespace Pi2Dht;
 
-SensorResult Pi2Dht::ReadSensor(SensorType type, int pin, DhtReading &reading)
+Result Sensor::GetReading(Model model, int pin, Reading &reading)
 {
     reading.temperature = 0.0f;
     reading.humidity = 0.0f;
     
     // Initialize GPIO library.
     if (pi_2_mmio_init() < 0)
-	return SensorResult::GpioError;
+	return Result::GpioError;
 
     // Store the count that each DHT bit pulse is low and high.
     // Make sure array is initialized to start at zero.
@@ -69,7 +70,7 @@ SensorResult Pi2Dht::ReadSensor(SensorType type, int pin, DhtReading &reading)
 	{
 	    // Timeout waiting for response.
 	    set_default_priority();
-	    return SensorResult::TimeoutError;
+	    return Result::TimeoutError;
 	}
     }
 
@@ -83,7 +84,7 @@ SensorResult Pi2Dht::ReadSensor(SensorType type, int pin, DhtReading &reading)
 	    {
 		// Timeout waiting for response.
 		set_default_priority();
-		return SensorResult::TimeoutError;
+		return Result::TimeoutError;
 	    }
 	}
 	
@@ -95,7 +96,7 @@ SensorResult Pi2Dht::ReadSensor(SensorType type, int pin, DhtReading &reading)
 	    {
 		// Timeout waiting for response.
 		set_default_priority();
-		return SensorResult::TimeoutError;
+		return Result::TimeoutError;
 	    }
 	}
 //	printf("pulseCounts: %d\n", pulseCounts[i+1]);
@@ -136,13 +137,13 @@ SensorResult Pi2Dht::ReadSensor(SensorType type, int pin, DhtReading &reading)
     // Verify checksum of received data.
     if (data[4] == ((data[0] + data[1] + data[2] + data[3]) & 0xFF))
     {
-	if (type == SensorType::DHT11)
+	if (model == Model::DHT11)
 	{
 	    // Get humidity and temp for DHT11 sensor.
 	    reading.humidity = (float)data[0];
 	    reading.temperature = (float)data[2];
 	}
-	else if (type == SensorType::DHT22 || type == SensorType::AM2302)
+	else if (model == Model::DHT22 || model == Model::AM2302)
 	{
 	    // Calculate humidity and temp for DHT22 sensor.
 	    reading.humidity = (data[0] * 256 + data[1]) / 10.0f;
@@ -150,10 +151,10 @@ SensorResult Pi2Dht::ReadSensor(SensorType type, int pin, DhtReading &reading)
 	    if (data[2] & 0x80)
 		reading.temperature *= -1.0f;
 	}
-	return SensorResult::Success;
+	return Result::Success;
     }
     else
     {
-	return SensorResult::ChecksumError;
+	return Result::ChecksumError;
     }
 }
