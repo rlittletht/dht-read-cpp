@@ -3,7 +3,7 @@
 #include "pi/pi_dht_read.h"
 #include "pi2/pi_2_dht_read.h"
 
-#include "pi2/Pi2Dht.h"
+#include "pi2/dht.h"
 
 #include "thread/PiTimer.h"
 
@@ -55,8 +55,6 @@ int main(int argc, const char **argv)
     
     while (count-- > 0)
     {
-//	int success = dht_read(AM2302, DHTPIN, &humidity, &temperature);
-
         readingsAttempted++;
         
         if (useNewReader)

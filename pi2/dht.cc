@@ -7,7 +7,7 @@
 #include "pi_2_mmio.h"
 #include "../realtime.h"
 
-#include "Pi2Dht.h"
+#include "dht.h"
 #include "../thread/PiClock.h"
 
 // This is the only processor specific magic value, the maximum amount of time to

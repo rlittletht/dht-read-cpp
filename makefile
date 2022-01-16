@@ -10,7 +10,7 @@ SRCDIR = .
 THREADDIR = thread
 
 PIFILES = $(OBJDIR)/pi_dht_read.o $(OBJDIR)/bcm2708.o
-PI2FILES = $(OBJDIR)/pi_2_dht_read.o $(OBJDIR)/pi_2_mmio.o $(OBJDIR)/Pi2Dht.o
+PI2FILES = $(OBJDIR)/pi_2_dht_read.o $(OBJDIR)/pi_2_mmio.o $(OBJDIR)/dht.o
 
 COREFILES = $(OBJDIR)/realtime.o
 THREADFILES = $(OBJDIR)/PiClock.o $(OBJDIR)/PiTimer.o
