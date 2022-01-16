@@ -6,8 +6,9 @@
 *.o.json
 compile_commands.json
 
-# ignore binary directory
+# ignore binary and obj directory
 bin/
+obj/
 
 # ignore emacs backups
 *~
