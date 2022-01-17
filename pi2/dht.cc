@@ -1,12 +1,7 @@
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include "stdio.h"
 
-#include "pi_2_dht_read.h"
+#include <iostream>
 #include "mmio.h"
-#include "../realtime.h"
-
 #include "dht.h"
 #include "../thread/PiThread.h"
 
@@ -40,75 +35,65 @@ Result Sensor::GetReading(Model model, int pin, Reading &reading)
     // Set pin to output.
   
     gpio->SetOutput(pin);
-    
-    // Bump up process priority and change scheduler to try to try to make process more 'real time'.
-    set_max_priority();
 
-    // Set pin high for ~500 milliseconds.
-    gpio->SetHigh(pin);
-    sleep_milliseconds(500);
-
-    // The next calls are timing critical and care should be taken
-    // to ensure no unnecssary work is done below.
-
-    // Set pin low for ~20 milliseconds.
-    gpio->SetLow(pin);
-    
-    PiThread::BusyWait(std::chrono::steady_clock::duration(20ms));
-//    busy_wait_milliseconds(20);
-
-    // Set pin at input.
-    gpio->SetInput(pin);
-    // Need a very short delay before reading pins or else value is sometimes still low.
-//    for (volatile int i = 0; i < 50; ++i)
-//	;
-    sleep_nanoseconds(100);
-
-    // Wait for DHT to pull pin low.
-    uint32_t count = 0;
-    while (gpio->GetInput(pin))
+    // BLOCK for MaxPriority
     {
-	if (++count >= DHT_MAXCOUNT)
-	{
-	    // Timeout waiting for response.
-	    set_default_priority();
-	    return Result::TimeoutError;
-	}
-    }
+        // Bump up process priority and change scheduler to try to try to make process more 'real time'.
+        PiThread::SchedulerMaxPriorityBlock maxPriorityBlock;
 
-    // Record pulse widths for the expected result bits.
-    for (int i=0; i < DHT_PULSES*2; i+=2)
-    {
-	// Count how long pin is low and store in pulseCounts[i]
-	while (!gpio->GetInput(pin))
-	{
-	    if (++pulseCounts[i] >= DHT_MAXCOUNT)
-	    {
-		// Timeout waiting for response.
-		set_default_priority();
-		return Result::TimeoutError;
-	    }
-	}
+        // Set pin high for ~500 milliseconds.
+        gpio->SetHigh(pin);
+        PiThread::Sleep(PiThread::pi_clock::duration(500ms));
+
+        // The next calls are timing critical and care should be taken
+        // to ensure no unnecssary work is done below.
+
+        // Set pin low for ~20 milliseconds.
+        gpio->SetLow(pin);
+    
+        PiThread::BusyWait(std::chrono::steady_clock::duration(20ms));
+
+        // Set pin at input.
+        gpio->SetInput(pin);
+    
+        // Need a very short delay before reading pins or else value is sometimes still low.
+        PiThread::Sleep(PiThread::pi_clock::duration(100ns));
+
+        // Wait for DHT to pull pin low.
+        uint32_t count = 0;
+        while (gpio->GetInput(pin))
+        {
+            // Timeout waiting for response.
+            if (++count >= DHT_MAXCOUNT)
+                return Result::TimeoutError;
+        }
+
+        // Record pulse widths for the expected result bits.
+        for (int i=0; i < DHT_PULSES*2; i+=2)
+        {
+            // Count how long pin is low and store in pulseCounts[i]
+            while (!gpio->GetInput(pin))
+            {
+                // Timeout waiting for response.
+                if (++pulseCounts[i] >= DHT_MAXCOUNT)
+                    return Result::TimeoutError;
+            }
 	
-	// Count how long pin is high and store in pulseCounts[i+1]
-	while (gpio->GetInput(pin))
-	{
+            // Count how long pin is high and store in pulseCounts[i+1]
+            while (gpio->GetInput(pin))
+            {
 //	sleep_milliseconds(1);
-	    if (++pulseCounts[i+1] >= DHT_MAXCOUNT)
-	    {
-		// Timeout waiting for response.
-		set_default_priority();
-		return Result::TimeoutError;
-	    }
-	}
+                // Timeout waiting for response.
+                if (++pulseCounts[i+1] >= DHT_MAXCOUNT)
+                    return Result::TimeoutError;
+            }
 //	printf("pulseCounts: %d\n", pulseCounts[i+1]);
-    }
+        }
 
-    // Done with timing critical code, now interpret the results.
-
-    // Drop back to normal priority.
-    set_default_priority();
-
+        // Done with timing critical code, now interpret the results.
+        // Drop back to normal priority (happens automatically when we leave this block)
+    } // BLOCK for Max Priority
+    
     // Compute the average low pulse width to use as a 50 microsecond reference threshold.
     // Ignore the first two readings because they are a constant 80 microsecond pulse.
     uint32_t threshold = 0;
