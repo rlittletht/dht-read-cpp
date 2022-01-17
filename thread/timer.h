@@ -3,6 +3,8 @@
 
 #include "PiThread.h"
 
+using namespace PiThread;
+
 class PiTimer
 {
 public:
