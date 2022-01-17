@@ -23,6 +23,7 @@ int main(int argc, const char **argv)
     int readingsAttempted = 0;
     int successfulReadings = 0;
     PiTimer timer;
+    Pi2Dht::Sensor sensor(Pi2Dht::Model::AM2302, DHTPIN);
     
     while (iArg < argc)
     {
@@ -60,7 +61,7 @@ int main(int argc, const char **argv)
         if (useNewReader)
         {
             Pi2Dht::Reading reading;
-            Pi2Dht::Result result = Pi2Dht::Sensor::GetReading(Pi2Dht::Model::AM2302, DHTPIN, reading);
+            Pi2Dht::Result result = sensor.GetReading(reading);
 
             if (result == Pi2Dht::Result::Success)
             {
@@ -107,9 +108,6 @@ int main(int argc, const char **argv)
         printf("\n\nRESULTS: %d/%d.  %f%%\n", successfulReadings, readingsAttempted, (float)(successfulReadings * 100.0) / (float)readingsAttempted);
     }
 
-//    auto a = timer.Elapsed();
-//    std::chrono::milliseconds msec(std::chrono::duration_cast<std::chrono::milliseconds>(a));
-    
     std::cout << "Total elapsed time: " << std::chrono::duration_cast<std::chrono::milliseconds>(timer.Elapsed()).count() << " msec\n";
     return 0;
 }

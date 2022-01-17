@@ -1,4 +1,6 @@
 
+#include "../thread/PiThread.h"
+
 namespace Pi2Dht
 {
 
@@ -27,7 +29,13 @@ enum class Model: int
 class Sensor
 {
 public:
-    static Result GetReading(Model model, int pin, Reading &reading);
+    Sensor(Model model, int pin);
+    Result GetReading(Reading &reading);
+
+private:
+    Model m_model;
+    int m_pin;
+    PiThread::pi_clock::time_point m_lastReading;
 };
 
 }

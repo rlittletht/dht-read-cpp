@@ -25,6 +25,8 @@ pi_clock::duration BusyWait(pi_clock::duration waitDuration)
     return timer.Elapsed();
 }
 
+#include <iostream>
+
 pi_clock::duration Sleep(pi_clock::duration waitDuration)
 {
     PiTimer timer;
@@ -32,7 +34,8 @@ pi_clock::duration Sleep(pi_clock::duration waitDuration)
     // get nanoseconds to sleep
     struct timespec sleep;
     sleep.tv_sec = std::chrono::duration_cast<std::chrono::seconds>(waitDuration).count();
-    sleep.tv_nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(waitDuration).count();
+    sleep.tv_nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(waitDuration).count()
+        - sleep.tv_sec * 1000000000;
 
     while (clock_nanosleep(CLOCK_MONOTONIC, 0, &sleep, &sleep) && errno == EINTR)
         ;
