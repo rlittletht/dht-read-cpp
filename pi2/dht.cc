@@ -4,7 +4,7 @@
 #include "stdio.h"
 
 #include "pi_2_dht_read.h"
-#include "pi_2_mmio.h"
+#include "mmio.h"
 #include "../realtime.h"
 
 #include "dht.h"
@@ -27,36 +27,38 @@ Result Sensor::GetReading(Model model, int pin, Reading &reading)
 {
     reading.temperature = 0.0f;
     reading.humidity = 0.0f;
-    
+
     // Initialize GPIO library.
-    if (pi_2_mmio_init() < 0)
+    if (Pi2::MMIO::ConnectGPIO() != Pi2::MMIO::Result::Success)
 	return Result::GpioError;
 
     // Store the count that each DHT bit pulse is low and high.
     // Make sure array is initialized to start at zero.
     int pulseCounts[DHT_PULSES*2] = {0};
-    
+
+    Pi2::MMIO::GPIO *gpio = Pi2::MMIO::GPIO_Instance();
     // Set pin to output.
-    pi_2_mmio_set_output(pin);
+  
+    gpio->SetOutput(pin);
     
     // Bump up process priority and change scheduler to try to try to make process more 'real time'.
     set_max_priority();
 
     // Set pin high for ~500 milliseconds.
-    pi_2_mmio_set_high(pin);
+    gpio->SetHigh(pin);
     sleep_milliseconds(500);
 
     // The next calls are timing critical and care should be taken
     // to ensure no unnecssary work is done below.
 
     // Set pin low for ~20 milliseconds.
-    pi_2_mmio_set_low(pin);
+    gpio->SetLow(pin);
     
     PiThread::BusyWait(std::chrono::steady_clock::duration(20ms));
 //    busy_wait_milliseconds(20);
 
     // Set pin at input.
-    pi_2_mmio_set_input(pin);
+    gpio->SetInput(pin);
     // Need a very short delay before reading pins or else value is sometimes still low.
 //    for (volatile int i = 0; i < 50; ++i)
 //	;
@@ -64,7 +66,7 @@ Result Sensor::GetReading(Model model, int pin, Reading &reading)
 
     // Wait for DHT to pull pin low.
     uint32_t count = 0;
-    while (pi_2_mmio_input(pin))
+    while (gpio->GetInput(pin))
     {
 	if (++count >= DHT_MAXCOUNT)
 	{
@@ -78,7 +80,7 @@ Result Sensor::GetReading(Model model, int pin, Reading &reading)
     for (int i=0; i < DHT_PULSES*2; i+=2)
     {
 	// Count how long pin is low and store in pulseCounts[i]
-	while (!pi_2_mmio_input(pin))
+	while (!gpio->GetInput(pin))
 	{
 	    if (++pulseCounts[i] >= DHT_MAXCOUNT)
 	    {
@@ -89,7 +91,7 @@ Result Sensor::GetReading(Model model, int pin, Reading &reading)
 	}
 	
 	// Count how long pin is high and store in pulseCounts[i+1]
-	while (pi_2_mmio_input(pin))
+	while (gpio->GetInput(pin))
 	{
 //	sleep_milliseconds(1);
 	    if (++pulseCounts[i+1] >= DHT_MAXCOUNT)
