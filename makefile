@@ -1,22 +1,31 @@
+
+############### Directory definitions
+
 TARGETDIR=bin
 OBJDIR=obj
-CC=g++
-CXX=g++
-CPPFLAGS=-W -Wall -std=c++17
 
 PIDIR = pi
 PI2DIR = pi2
 SRCDIR = .
 THREADDIR = thread
+OBJDIRS=$(OBJDIR)/.dir $(OBJDIR)/$(PIDIR)/.dir $(OBJDIR)/$(PIDIR)/.dir $(OBJDIR)/$(THREADDIR)/.dir
 
-PIFILES = $(OBJDIR)/pi_dht_read.o $(OBJDIR)/bcm2708.o
+############### Compile flags
+CC=g++
+CXX=g++
+CPPFLAGS=-W -Wall -std=c++17
+
+############### Target files
+PIFILES = $(OBJDIR)/pi/pi_dht_read.o $(OBJDIR)/pi/bcm2708.o
 PI2FILES = $(OBJDIR)/pi_2_dht_read.o $(OBJDIR)/pi_2_mmio.o $(OBJDIR)/dht.o
-
 COREFILES = $(OBJDIR)/realtime.o
 THREADFILES = $(OBJDIR)/PiClock.o $(OBJDIR)/timer.o
 
+OBJFILES = $(OBJDIR)/test_dht_read.o $(PIFILES) $(COREFILES) $(PI2FILES) $(THREADFILES)
+
 VPATH=$(SRCDIR):$(PIDIR):$(PI2DIR):$(OBJDIR):$(THREADDIR)
 
+############### Inference Rules
 %.o: %.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
 
@@ -34,20 +43,22 @@ $(OBJDIR)/%.o.json: %.cc
 	clang++ -MJ $@ -Wall -std=c++17 -o $(@:.o.json=.o) -c $<
 	cat $@ >> $(OBJDIR)/compdb.int.json
 
+############### Target rules
+
 .PHONY: clean
 .PHONY: all
 
-all: | $(TARGETDIR) $(OBJDIR) $(TARGETDIR)/test_dht_read
+all: | $(TARGETDIR) $(OBJDIRS) $(TARGETDIR)/test_dht_read
 
 clean:
-	rm -f $(TARGETDIR)/*
-	rm -f $(OBJDIR)/*
-
-
-OBJFILES = $(OBJDIR)/test_dht_read.o $(PIFILES) $(COREFILES) $(PI2FILES) $(THREADFILES)
+	rm -rf $(TARGETDIR)/*
+	rm -rf $(OBJDIR)/*
 
 $(OBJDIR):
 	echo Making object directory $@
+	-mkdir -p $@
+
+%.dir:
 	-mkdir -p $@
 
 $(TARGETDIR):
