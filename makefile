@@ -13,7 +13,7 @@ PIFILES = $(OBJDIR)/pi_dht_read.o $(OBJDIR)/bcm2708.o
 PI2FILES = $(OBJDIR)/pi_2_dht_read.o $(OBJDIR)/pi_2_mmio.o $(OBJDIR)/dht.o
 
 COREFILES = $(OBJDIR)/realtime.o
-THREADFILES = $(OBJDIR)/PiClock.o $(OBJDIR)/PiTimer.o
+THREADFILES = $(OBJDIR)/PiClock.o $(OBJDIR)/timer.o
 
 VPATH=$(SRCDIR):$(PIDIR):$(PI2DIR):$(OBJDIR):$(THREADDIR)
 

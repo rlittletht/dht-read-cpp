@@ -5,7 +5,7 @@
 
 #include "pi2/dht.h"
 
-#include "thread/PiTimer.h"
+#include "thread/timer.h"
 
 #include <iostream>
 

@@ -1,6 +1,6 @@
 
 #include "PiClock.h"
-#include "PiTimer.h"
+#include "timer.h"
 
 /*------------------------------------------------------------------------------
     Function: PiClock::BusyWait

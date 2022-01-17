@@ -1,5 +1,5 @@
 
-#include "PiTimer.h"
+#include "timer.h"
 
 PiTimer::PiTimer()
 {
