@@ -8,7 +8,7 @@
 #include "../realtime.h"
 
 #include "dht.h"
-#include "../thread/PiClock.h"
+#include "../thread/PiThread.h"
 
 // This is the only processor specific magic value, the maximum amount of time to
 // spin in a loop before bailing out and considering the read a timeout.  This should
@@ -52,7 +52,7 @@ Result Sensor::GetReading(Model model, int pin, Reading &reading)
     // Set pin low for ~20 milliseconds.
     pi_2_mmio_set_low(pin);
     
-    PiClock::BusyWait(std::chrono::steady_clock::duration(20ms));
+    PiThread::BusyWait(std::chrono::steady_clock::duration(20ms));
 //    busy_wait_milliseconds(20);
 
     // Set pin at input.

@@ -19,7 +19,7 @@ CPPFLAGS=-W -Wall -std=c++17
 PIFILES = $(OBJDIR)/pi/pi_dht_read.o $(OBJDIR)/pi/bcm2708.o
 PI2FILES = $(OBJDIR)/pi_2_dht_read.o $(OBJDIR)/pi_2_mmio.o $(OBJDIR)/dht.o
 COREFILES = $(OBJDIR)/realtime.o
-THREADFILES = $(OBJDIR)/PiClock.o $(OBJDIR)/timer.o
+THREADFILES = $(OBJDIR)/PiThread.o $(OBJDIR)/timer.o
 
 OBJFILES = $(OBJDIR)/test_dht_read.o $(PIFILES) $(COREFILES) $(PI2FILES) $(THREADFILES)
 
@@ -70,7 +70,7 @@ $(TARGETDIR)/test_dht_read: $(OBJFILES)
 
 #note the doubling of the $ in the sed expression -- they are expanded twice. once by make and once by sh
 .PHONY: compdb
-compdb: clean $(OBJFILES:.o=.o.json)
+compdb: clean $(OBJDIRS) $(OBJFILES:.o=.o.json)
 	sed -e '1s/^/[\n/' -e '$$s/,$$/\n]/' $(OBJDIR)/compdb.int.json > compile_commands.json
 
 
