@@ -1,5 +1,7 @@
 
 #include "../thread/PiThread.h"
+#include <memory>
+#include <mutex>
 
 namespace Pi2
 {
@@ -19,6 +21,8 @@ struct Reading
 {
     float humidity;
     float temperature;
+    int pinAddress;
+    Thread::pi_clock::time_point readingTime;
 };
 
 enum class Model: int
@@ -31,13 +35,14 @@ enum class Model: int
 class Sensor
 {
 public:
-    Sensor(Model model, int pin);
+    Sensor(std::shared_ptr<std::mutex> spMutexScheduler, Model model, int pin);
     Result GetReading(Reading &reading);
 
 private:
     Model m_model;
     int m_pin;
     Thread::pi_clock::time_point m_lastReading;
+    std::shared_ptr<std::mutex> m_spMutexScheduler;
 };
 
 }

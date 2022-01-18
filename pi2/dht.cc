@@ -34,11 +34,12 @@ inline int GetBitFromSignal(int signal[2])
     return signal[1] > signal[0];
 }
 
-Sensor::Sensor(Model model, int pin)
+Sensor::Sensor(std::shared_ptr<std::mutex> spMutexScheduler, Model model, int pin)
 {
     m_model = model;
     m_pin = pin;
     m_lastReading = Pi2::Thread::pi_clock::now() - 1h;
+    m_spMutexScheduler = spMutexScheduler;
 }
 
 
@@ -48,6 +49,10 @@ Sensor::Sensor(Model model, int pin)
     Get a reading from the sensor on the given pin. This will take around
     525msec. This will also enforce the sensor's recommended 2s interval
     between reading.
+
+    Reading the sensor requires access to the scheduler and changing it --
+    this is VERY unfriendly to multithreading. We require exclusive access
+    (at least amongst other sensor readers) via the mutex we were given.
 ------------------------------------------------------------------------------*/
 Result Sensor::GetReading(Reading &reading)
 {
@@ -60,7 +65,9 @@ Result Sensor::GetReading(Reading &reading)
     
     reading.temperature = 0.0f;
     reading.humidity = 0.0f;
-
+    reading.pinAddress = m_pin;
+    reading.readingTime = m_lastReading;
+    
     // Initialize GPIO library.
     if (Pi2::MMIO::ConnectGPIO() != Pi2::MMIO::Result::Success)
 	return Result::GpioError;
@@ -72,11 +79,14 @@ Result Sensor::GetReading(Reading &reading)
     Pi2::MMIO::GPIO *gpio = Pi2::MMIO::GPIO_Instance();
     // Set pin to output.
   
-    gpio->SetOutput(m_pin);
     Pi2::Timer timer; // create the timer outside the max priority block
 
     // BLOCK for MaxPriority
     {
+        std::scoped_lock<std::mutex> lock(*m_spMutexScheduler);
+        
+        gpio->SetOutput(m_pin);
+        
         // Bump up process priority and change scheduler to try to try to make process more 'real time'.
         Pi2::Thread::SchedulerMaxPriorityBlock maxPriorityBlock;
 

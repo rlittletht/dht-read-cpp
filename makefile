@@ -13,7 +13,8 @@ OBJDIRS=$(OBJDIR)/.dir $(OBJDIR)/$(PIDIR)/.dir $(OBJDIR)/$(PIDIR)/.dir $(OBJDIR)
 ############### Compile flags
 CC=g++
 CXX=g++
-CPPFLAGS=-W -Wall -std=c++17
+CPPFLAGS=-W -Wall -std=c++17 -Wno-psabi
+LFLAGS=-pthread
 
 ############### Target files
 PI2FILES = $(OBJDIR)/pi_2_dht_read.o $(OBJDIR)/pi_2_mmio.o $(OBJDIR)/dht.o $(OBJDIR)/mmio.o
@@ -65,7 +66,7 @@ $(TARGETDIR):
 	-mkdir -p $@
 
 $(TARGETDIR)/test_dht_read: $(OBJFILES)
-	$(CC) -o $@ -W -Wall -lrt -lstdc++ $^
+	$(CC) $(CPPFLAGS) $(LFLAGS) -o $@ -W -Wall -lrt -lstdc++ $^
 
 #note the doubling of the $ in the sed expression -- they are expanded twice. once by make and once by sh
 .PHONY: compdb
