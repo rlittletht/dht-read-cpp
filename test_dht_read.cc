@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "pi/pi_dht_read.h"
 #include "pi2/pi_2_dht_read.h"
 
 #include "pi2/dht.h"
