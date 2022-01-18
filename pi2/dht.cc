@@ -10,11 +10,6 @@
 #include <algorithm>
 #include <cmath>
 
-// This is the only processor specific magic value, the maximum amount of time to
-// spin in a loop before bailing out and considering the read a timeout.  This should
-// be a high value, but if you're running on a much faster platform than a Raspberry
-// Pi or Beaglebone Black then it might need to be increased.
-#define DHT_MAXCOUNT 32000
 #define DHT_MIN_READINTERVAL 2s
 #define DHT_TIMEOUT 525ms
 
@@ -23,7 +18,8 @@
 // the data afterwards.
 #define DHT_PULSES 41
 
-using namespace Pi2Dht;
+using namespace Pi2;
+using namespace Dht;
 
 /*------------------------------------------------------------------------------
     Function: GetBitFromSignal
@@ -42,7 +38,7 @@ Sensor::Sensor(Model model, int pin)
 {
     m_model = model;
     m_pin = pin;
-    m_lastReading = PiThread::pi_clock::now() - 1h;
+    m_lastReading = Pi2::Thread::pi_clock::now() - 1h;
 }
 
 
@@ -55,12 +51,12 @@ Sensor::Sensor(Model model, int pin)
 ------------------------------------------------------------------------------*/
 Result Sensor::GetReading(Reading &reading)
 {
-    PiThread::pi_clock::duration sinceLastReading = PiThread::pi_clock::now() - m_lastReading;
+    Pi2::Thread::pi_clock::duration sinceLastReading = Pi2::Thread::pi_clock::now() - m_lastReading;
     
-    if (sinceLastReading < PiThread::pi_clock::duration(DHT_MIN_READINTERVAL))
-        PiThread::pi_clock::duration dur = PiThread::Sleep(DHT_MIN_READINTERVAL - sinceLastReading);
+    if (sinceLastReading < Pi2::Thread::pi_clock::duration(DHT_MIN_READINTERVAL))
+        Pi2::Thread::pi_clock::duration dur = Pi2::Thread::Sleep(DHT_MIN_READINTERVAL - sinceLastReading);
 
-    m_lastReading = PiThread::pi_clock::now();
+    m_lastReading = Pi2::Thread::pi_clock::now();
     
     reading.temperature = 0.0f;
     reading.humidity = 0.0f;
@@ -77,16 +73,16 @@ Result Sensor::GetReading(Reading &reading)
     // Set pin to output.
   
     gpio->SetOutput(m_pin);
-    PiTimer timer; // create the timer outside the max priority block
+    Pi2::Timer timer; // create the timer outside the max priority block
 
     // BLOCK for MaxPriority
     {
         // Bump up process priority and change scheduler to try to try to make process more 'real time'.
-        PiThread::SchedulerMaxPriorityBlock maxPriorityBlock;
+        Pi2::Thread::SchedulerMaxPriorityBlock maxPriorityBlock;
 
         // Set pin high for ~500 milliseconds.
         gpio->SetHigh(m_pin);
-        PiThread::Sleep(PiThread::pi_clock::duration(500ms));
+        Pi2::Thread::Sleep(Pi2::Thread::pi_clock::duration(500ms));
 
         // The next calls are timing critical and care should be taken
         // to ensure no unnecssary work is done below.
@@ -94,19 +90,19 @@ Result Sensor::GetReading(Reading &reading)
         // Set pin low for ~20 milliseconds.
         gpio->SetLow(m_pin);
     
-        PiThread::BusyWait(std::chrono::steady_clock::duration(20ms));
+        Pi2::Thread::BusyWait(std::chrono::steady_clock::duration(20ms));
 
         // Set pin at input.
         gpio->SetInput(m_pin);
     
         // Need a very short delay before reading pins or else value is sometimes still low.
-        PiThread::Sleep(PiThread::pi_clock::duration(50ns));
+        Pi2::Thread::Sleep(Pi2::Thread::pi_clock::duration(50ns));
         
         // Wait for DHT to pull pin low.
         timer.Reset();
         while (gpio->GetInput(m_pin))
         {
-            if (timer.Elapsed() > PiThread::pi_clock::duration(DHT_TIMEOUT))
+            if (timer.Elapsed() > Pi2::Thread::pi_clock::duration(DHT_TIMEOUT))
                 return Result::TimeoutError;
         }
 
@@ -117,7 +113,7 @@ Result Sensor::GetReading(Reading &reading)
             // Count how long pin is low and store in pulseCounts[i]
             while (!gpio->GetInput(m_pin))
             {
-                if (timer.Elapsed() > PiThread::pi_clock::duration(DHT_TIMEOUT))
+                if (timer.Elapsed() > Pi2::Thread::pi_clock::duration(DHT_TIMEOUT))
                     return Result::TimeoutError;
             }
             usPulseWidths[i] = std::chrono::duration_cast<std::chrono::microseconds>(timer.Elapsed()).count();
@@ -126,7 +122,7 @@ Result Sensor::GetReading(Reading &reading)
             // Count how long pin is high and store in pulseCounts[i+1]
             while (gpio->GetInput(m_pin))
             {
-                if (timer.Elapsed() > PiThread::pi_clock::duration(DHT_TIMEOUT))
+                if (timer.Elapsed() > Pi2::Thread::pi_clock::duration(DHT_TIMEOUT))
                     return Result::TimeoutError;
             }
             usPulseWidths[i + 1] = std::chrono::duration_cast<std::chrono::microseconds>(timer.Elapsed()).count();

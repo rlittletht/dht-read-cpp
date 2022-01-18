@@ -8,7 +8,9 @@
 #include <sched.h>
 #include <cstring>
 
-namespace PiThread
+using namespace Pi2;
+
+namespace Pi2::Thread
 {
 /*------------------------------------------------------------------------------
   Function: PiClock::BusyWait
@@ -17,7 +19,7 @@ namespace PiThread
   ------------------------------------------------------------------------------*/
 pi_clock::duration BusyWait(pi_clock::duration waitDuration)
 {
-    PiTimer timer;
+    Timer timer;
     
     while (timer.Elapsed() < waitDuration)
         ;
@@ -25,11 +27,9 @@ pi_clock::duration BusyWait(pi_clock::duration waitDuration)
     return timer.Elapsed();
 }
 
-#include <iostream>
-
 pi_clock::duration Sleep(pi_clock::duration waitDuration)
 {
-    PiTimer timer;
+    Timer timer;
 
     // get nanoseconds to sleep
     struct timespec sleep;

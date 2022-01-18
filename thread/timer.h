@@ -3,17 +3,18 @@
 
 #include "PiThread.h"
 
-using namespace PiThread;
+using namespace Pi2::Thread;
 
-class PiTimer
+namespace Pi2
+{
+class Timer
 {
 public:
-    PiTimer();
+    Timer();
     pi_clock::duration Elapsed();
     void Reset();
     
 private:
     pi_clock::time_point m_startTime;
 };
-
-    
+}

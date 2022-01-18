@@ -1,7 +1,9 @@
 
 #include "../thread/PiThread.h"
 
-namespace Pi2Dht
+namespace Pi2
+{
+namespace Dht
 {
 
 enum class Result: int
@@ -35,7 +37,8 @@ public:
 private:
     Model m_model;
     int m_pin;
-    PiThread::pi_clock::time_point m_lastReading;
+    Thread::pi_clock::time_point m_lastReading;
 };
 
+}
 }

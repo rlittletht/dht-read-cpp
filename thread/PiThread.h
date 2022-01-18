@@ -4,7 +4,7 @@
 
 #include <chrono>
 
-namespace PiThread
+namespace Pi2::Thread
 {
 using pi_clock = std::chrono::steady_clock;
 
@@ -26,7 +26,6 @@ public:
     SchedulerMaxPriorityBlock();
     ~SchedulerMaxPriorityBlock();
 };
-
 }
 
 using namespace std::chrono_literals;

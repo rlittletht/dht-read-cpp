@@ -22,8 +22,8 @@ int main(int argc, const char **argv)
     int iArg = 1;
     int readingsAttempted = 0;
     int successfulReadings = 0;
-    PiTimer timer;
-    Pi2Dht::Sensor sensor(Pi2Dht::Model::AM2302, DHTPIN);
+    Pi2::Timer timer;
+    Pi2::Dht::Sensor sensor(Pi2::Dht::Model::AM2302, DHTPIN);
     
     while (iArg < argc)
     {
@@ -60,10 +60,10 @@ int main(int argc, const char **argv)
         
         if (useNewReader)
         {
-            Pi2Dht::Reading reading;
-            Pi2Dht::Result result = sensor.GetReading(reading);
+            Pi2::Dht::Reading reading;
+            Pi2::Dht::Result result = sensor.GetReading(reading);
 
-            if (result == Pi2Dht::Result::Success)
+            if (result == Pi2::Dht::Result::Success)
             {
                 if (!testMode)
                     printf("new: temperature:%.1f Humidity:%.1f\n", reading.temperature, reading.humidity);
