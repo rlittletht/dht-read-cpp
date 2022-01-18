@@ -18,7 +18,7 @@ CPPFLAGS=-W -Wall -std=c++17
 ############### Target files
 PI2FILES = $(OBJDIR)/pi_2_dht_read.o $(OBJDIR)/pi_2_mmio.o $(OBJDIR)/dht.o $(OBJDIR)/mmio.o
 COREFILES = $(OBJDIR)/realtime.o
-THREADFILES = $(OBJDIR)/PiThread.o $(OBJDIR)/timer.o
+THREADFILES = $(OBJDIR)/thread/PiThread.o $(OBJDIR)/thread/timer.o
 
 OBJFILES = $(OBJDIR)/test_dht_read.o $(PIFILES) $(COREFILES) $(PI2FILES) $(THREADFILES)
 
